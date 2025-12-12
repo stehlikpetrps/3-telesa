@@ -47,6 +47,5 @@ class Body:
         
         self.velocity = self.velocity + velocity_change
         
-        # Důležité: Nakonec musíme přepsat 'self.acceleration' na nové, 
-        # abychom ho měli připravené pro další krok.
+        # Nakonec musíme přepsat 'self.acceleration' na nové, abychom ho měli připravené pro další krok.
         self.acceleration = new_acceleration

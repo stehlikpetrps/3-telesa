@@ -14,9 +14,9 @@ def run_simulation():
     # --- 1. VYTVOŘENÍ TĚLES ---
     
     # ZEMĚ:
-    # Hmotnost: 5.97 * 10^24 kg (používáme vědecký zápis 'e')
+    # Hmotnost: 5.97 * 10^24 kg
     # Poloha: Střed souřadnic (0, 0, 0)
-    # Rychlost: Nulová (pro zjednodušení ji považujeme za statickou kotvu)
+    # Rychlost: Nulová
     earth = Body(mass=5.97e24, position=Vector(0.0, 0.0, 0.0))
     
     # MĚSÍC:
@@ -46,18 +46,12 @@ def run_simulation():
     # Simulujeme 500 kroků (tj. 500 hodin času simulace)
     for i in range(500):
         
-        # Toto je nejdůležitější řádek!
         # Engine vypočítá gravitaci a pohne všemi tělesy o 1 hodinu.
         engine.step()
         
-        # Vypisujeme polohu každých 50 kroků (aby se nám nezahltil terminál)
-        # Operátor % (modulo) vrací zbytek po dělení.
         if i % 50 == 0:
-            # .2e znamená "vypiš číslo ve vědeckém formátu na 2 desetinná místa"
             print(f"Krok {i}: Měsíc X={moon.position.x:.2e}, Y={moon.position.y:.2e}")
 
-# --- SPUŠTĚNÍ SKRIPTU ---
-# Tento blok zajistí, že se simulace spustí jen tehdy, 
-# když tento soubor zapneme přímo (ne když ho importujeme jinam).
+# Tento blok zajistí, že se simulace spustí jen tehdy, když tento soubor zapneme přímo (ne když ho importujeme jinam).
 if __name__ == '__main__':
     run_simulation()
