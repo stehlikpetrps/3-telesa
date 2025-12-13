@@ -1,3 +1,6 @@
+import matplotlib            
+matplotlib.use('Qt5Agg')
+
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from .engine import SimulationEngine
@@ -39,8 +42,8 @@ class SimulationVisualizer:
     def update(self, frame):
         """ 
         Tato funkce se volá pro každý snímek animace.
-        1. Spočítá fyziku (engine.step).
-        2. Překreslí body na nové pozice.
+        Spočítá fyziku (engine.step)
+        Překreslí body na nové pozice
         """
         # Provedeme jeden krok fyziky
         # Můžeme volat step() vícekrát pro zrychlení animace, aniž bychom ztratili přesnost

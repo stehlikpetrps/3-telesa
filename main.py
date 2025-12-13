@@ -13,11 +13,18 @@ def run_simulation():
     
     # --- 1. VYTVOŘENÍ TĚLES ---
     
-    # ZEMĚ:
-    # Hmotnost: 5.97 * 10^24 kg
-    # Poloha: Střed souřadnic (0, 0, 0)
-    # Rychlost: Nulová
-    earth = Body(mass=5.97e24, position=Vector(0.0, 0.0, 0.0))
+   # ZEMĚ:
+    # Abychom vyrušili pohyb Měsíce, musí mít Země opačnou hybnost.
+    # Hybnost (p) = m * v
+    # p_země musí být rovno -p_měsíce
+    # v_země = -(m_měsíce * v_měsíce) / m_země
+    # v_země = -(7.34e22 * 1020) / 5.97e24 = cca -12.54 m/s
+    
+    earth = Body(
+        mass=5.97e24, 
+        position=Vector(0.0, 0.0, 0.0),
+        velocity=Vector(0.0, -12.54, 0.0)
+    )
     
     # MĚSÍC:
     # Hmotnost: 7.34 * 10^22 kg
@@ -31,7 +38,7 @@ def run_simulation():
         velocity=Vector(0.0, 1020.0, 0.0) 
     )
     
-    # --- 2. NASTAVENÍ ENGINE ---
+
     
     # Vytvoříme seznam těles, která chceme simulovat
     bodies_list = [earth, moon]
@@ -40,18 +47,8 @@ def run_simulation():
     # dt=3600.0 znamená, že jeden krok simulace = 1 hodina ve skutečnosti.
     # Čím menší číslo, tím přesnější simulace, ale trvá déle.
     engine = SimulationEngine(bodies_list, dt=3600.0)
+    engine.run_simulation(steps=2500)
     
-    # --- 3. SMYČKA SIMULACE ---
-    
-    # Simulujeme 500 kroků (tj. 500 hodin času simulace)
-    for i in range(500):
-        
-        # Engine vypočítá gravitaci a pohne všemi tělesy o 1 hodinu.
-        engine.step()
-        
-        if i % 50 == 0:
-            print(f"Krok {i}: Měsíc X={moon.position.x:.2e}, Y={moon.position.y:.2e}")
-
 # Tento blok zajistí, že se simulace spustí jen tehdy, když tento soubor zapneme přímo (ne když ho importujeme jinam).
 if __name__ == '__main__':
     run_simulation()

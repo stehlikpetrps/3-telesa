@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 from .vector import Vector
 from .body import Body
 
@@ -59,3 +60,39 @@ class SimulationEngine:
             new_acc = new_accelerations[i]
             
             body.update_velocity(self.dt, new_acc)
+
+    def run_simulation(self, steps: int):
+        print(f"Počítám {steps} kroků fyziky...")
+        history = [ {'x': [], 'y': []} for _ in self.bodies ]
+
+        for _ in range(steps):
+            self.step()
+            for i, body in enumerate(self.bodies):
+                history[i]['x'].append(body.position.x)
+                history[i]['y'].append(body.position.y)
+
+        print("Výpočet dokončen. Vykresluji graf...")
+        self._plot_results(history)
+
+    def _plot_results(self, history):
+        plt.figure(figsize=(10, 10))
+        names = ['Země', 'Měsíc']
+        
+        for i in range(len(self.bodies)):
+            plt.plot(history[i]['x'], history[i]['y'], label=names[i] if i < len(names) else f'Těleso {i}')
+            # Tečka na začátku dráhy
+            plt.plot(history[i]['x'][0], history[i]['y'][0], 'o')
+
+        plt.axis('equal')
+        plt.grid(True)
+        plt.legend()
+        plt.title("Simulace oběžné dráhy")
+        
+        # Uložíme obrázek
+        plt.savefig("vysledek_simulace.png")
+        print("Graf uložen jako 'vysledek_simulace.png'")
+        
+        try:
+            plt.show()
+        except:
+            pass
