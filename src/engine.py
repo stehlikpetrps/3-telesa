@@ -1,4 +1,7 @@
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 from .vector import Vector
 from .body import Body
 
@@ -60,39 +63,130 @@ class SimulationEngine:
             new_acc = new_accelerations[i]
             
             body.update_velocity(self.dt, new_acc)
-
-    def run_simulation(self, steps: int):
-        print(f"Počítám {steps} kroků fyziky...")
-        history = [ {'x': [], 'y': []} for _ in self.bodies ]
-
-        for _ in range(steps):
-            self.step()
-            for i, body in enumerate(self.bodies):
-                history[i]['x'].append(body.position.x)
-                history[i]['y'].append(body.position.y)
-
-        print("Výpočet dokončen. Vykresluji graf...")
-        self._plot_results(history)
-
-    def _plot_results(self, history):
-        plt.figure(figsize=(10, 10))
-        names = ['Země', 'Měsíc']
+    """
+    def animate(self, total_frames=500, steps_per_frame=20):
+        print("Připravuji animaci s dráhami...")
         
+        fig, ax = plt.subplots(figsize=(10, 10))
+        
+        # Limit grafu (nastavíme podle nejvzdálenějšího tělesa)
+        # Zvětšil jsem ho na 4.5e8, aby se tam hezky vešly oba měsíce
+        limit = 4.5e8 
+        ax.set_xlim(-limit, limit)
+        ax.set_ylim(-limit, limit)
+        ax.set_aspect('equal')
+        ax.grid(True)
+        ax.set_title("Živá N-Body Simulace")
+
+        colors = ['blue', 'green', 'red', 'purple', 'orange']
+        sizes = [12, 8, 6, 5, 5] 
+
+        self.dots = []
+        self.trails = [] # ### NOVÉ ###
+        
+        # ### NOVÉ ###: Připravíme si paměť na historii poloh pro všechna tělesa
+        # history = [ {'x': [seznam x souřadnic], 'y': [seznam y souřadnic]}, ... ]
+        self.history = [ {'x': [], 'y': []} for _ in self.bodies ]
+
+        # Inicializace grafických objektů (tečky a čáry)
         for i in range(len(self.bodies)):
-            plt.plot(history[i]['x'], history[i]['y'], label=names[i] if i < len(names) else f'Těleso {i}')
-            # Tečka na začátku dráhy
-            plt.plot(history[i]['x'][0], history[i]['y'][0], 'o')
+            color = colors[i % len(colors)]
+            
+            # 1. Vytvoříme objekt pro ČÁRU (trail) ### NOVÉ ###
+            # '-' znamená plná čára, linewidth=1 je tenká, alpha=0.6 je trochu průhledná
+            trail, = ax.plot([], [], '-', color=color, linewidth=1, alpha=0.6)
+            self.trails.append(trail)
 
-        plt.axis('equal')
-        plt.grid(True)
-        plt.legend()
-        plt.title("Simulace oběžné dráhy")
+            # 2. Vytvoříme objekt pro TEČKU (dot)
+            # zorder=5 zajistí, že tečka bude vykreslena "nad" čárou
+            dot, = ax.plot([], [], 'o', color=color, markersize=sizes[i % len(sizes)], zorder=5)
+            self.dots.append(dot)
+
+        def update(frame_number):
+            # Spočítáme fyziku
+            for _ in range(steps_per_frame):
+                self.step()
+
+            # Aktualizujeme grafiku
+            for i, body in enumerate(self.bodies):
+                # A) Přidáme aktuální polohu do historie ### NOVÉ ###
+                self.history[i]['x'].append(body.position.x)
+                self.history[i]['y'].append(body.position.y)
+
+                # B) Aktualizujeme ČÁRU (pošleme jí celou historii) ### NOVÉ ###
+                self.trails[i].set_data(self.history[i]['x'], self.history[i]['y'])
+                
+                # C) Aktualizujeme TEČKU (pošleme jí jen aktuální bod [x], [y])
+                self.dots[i].set_data([body.position.x], [body.position.y])
+            
+            # Matplotlib musí vědět, co všechno se změnilo.
+            # Vracíme spojený seznam čar a teček. ### NOVÉ ###
+            return self.trails + self.dots
+
+        # Spuštění animace (blit=False pro jistotu na Macu)
+        self.ani = FuncAnimation(fig, update, frames=total_frames, 
+                                 interval=20, blit=False, repeat=False)
         
-        # Uložíme obrázek
-        plt.savefig("vysledek_simulace.png")
-        print("Graf uložen jako 'vysledek_simulace.png'")
+        print("Spouštím okno s animací...")
+        plt.show()
+        """
+    def animate(self, total_frames=500, steps_per_frame=20, plot_limit=None):
+        print("Připravuji animaci...")
         
-        try:
-            plt.show()
-        except:
-            pass
+        fig, ax = plt.subplots(figsize=(10, 10))
+        
+        # --- ZMĚNA ZDE: INTELIGENTNÍ ZOOM ---
+        # Pokud nám někdo řekne limit (např. pro figure-8), použijeme ho.
+        # Pokud ne, použijeme ten obrovský pro sluneční soustavu.
+        if plot_limit is not None:
+            limit = plot_limit
+        else:
+            limit = 4.5e8 # Výchozí pro Sluneční soustavu
+            
+        ax.set_xlim(-limit, limit)
+        ax.set_ylim(-limit, limit)
+        ax.set_aspect('equal')
+        ax.grid(True)
+        ax.set_title("N-Body Simulace")
+
+        colors = ['blue', 'green', 'red', 'purple', 'orange']
+        sizes = [12, 12, 12, 5, 5] # Zvětšil jsem tečky pro Figure-8
+
+        self.dots = []
+        self.trails = [] 
+        
+        # Reset historie
+        self.history = [ {'x': [], 'y': []} for _ in self.bodies ]
+
+        for i in range(len(self.bodies)):
+            color = colors[i % len(colors)]
+            trail, = ax.plot([], [], '-', color=color, linewidth=1, alpha=0.6)
+            self.trails.append(trail)
+            dot, = ax.plot([], [], 'o', color=color, markersize=sizes[i % len(sizes)], zorder=5)
+            self.dots.append(dot)
+
+        def update(frame_number):
+            for _ in range(steps_per_frame):
+                self.step()
+
+            for i, body in enumerate(self.bodies):
+                # Omezení délky stopy na 500 bodů, ať se to neseká
+                limit_trail = 500 
+                
+                self.history[i]['x'].append(body.position.x)
+                self.history[i]['y'].append(body.position.y)
+
+                self.trails[i].set_data(
+                    self.history[i]['x'][-limit_trail:], 
+                    self.history[i]['y'][-limit_trail:]
+                )
+                self.dots[i].set_data([body.position.x], [body.position.y])
+            
+            return self.trails + self.dots
+
+        self.ani = FuncAnimation(fig, update, frames=total_frames, 
+                                 interval=20, blit=True, repeat=False)
+        
+        print("Spouštím okno s animací...")
+        plt.show()
+        
