@@ -63,20 +63,19 @@ class SimulationEngine:
             new_acc = new_accelerations[i]
             
             body.update_velocity(self.dt, new_acc)
-    """
+    
     def animate(self, total_frames=500, steps_per_frame=20):
         print("Připravuji animaci s dráhami...")
         
         fig, ax = plt.subplots(figsize=(10, 10))
         
         # Limit grafu (nastavíme podle nejvzdálenějšího tělesa)
-        # Zvětšil jsem ho na 4.5e8, aby se tam hezky vešly oba měsíce
         limit = 4.5e8 
         ax.set_xlim(-limit, limit)
         ax.set_ylim(-limit, limit)
         ax.set_aspect('equal')
         ax.grid(True)
-        ax.set_title("Živá N-Body Simulace")
+        ax.set_title("N-Body Simulace")
 
         colors = ['blue', 'green', 'red', 'purple', 'orange']
         sizes = [12, 8, 6, 5, 5] 
@@ -129,64 +128,4 @@ class SimulationEngine:
         
         print("Spouštím okno s animací...")
         plt.show()
-        """
-    def animate(self, total_frames=500, steps_per_frame=20, plot_limit=None):
-        print("Připravuji animaci...")
-        
-        fig, ax = plt.subplots(figsize=(10, 10))
-        
-        # --- ZMĚNA ZDE: INTELIGENTNÍ ZOOM ---
-        # Pokud nám někdo řekne limit (např. pro figure-8), použijeme ho.
-        # Pokud ne, použijeme ten obrovský pro sluneční soustavu.
-        if plot_limit is not None:
-            limit = plot_limit
-        else:
-            limit = 4.5e8 # Výchozí pro Sluneční soustavu
-            
-        ax.set_xlim(-limit, limit)
-        ax.set_ylim(-limit, limit)
-        ax.set_aspect('equal')
-        ax.grid(True)
-        ax.set_title("N-Body Simulace")
-
-        colors = ['blue', 'green', 'red', 'purple', 'orange']
-        sizes = [12, 12, 12, 5, 5] # Zvětšil jsem tečky pro Figure-8
-
-        self.dots = []
-        self.trails = [] 
-        
-        # Reset historie
-        self.history = [ {'x': [], 'y': []} for _ in self.bodies ]
-
-        for i in range(len(self.bodies)):
-            color = colors[i % len(colors)]
-            trail, = ax.plot([], [], '-', color=color, linewidth=1, alpha=0.6)
-            self.trails.append(trail)
-            dot, = ax.plot([], [], 'o', color=color, markersize=sizes[i % len(sizes)], zorder=5)
-            self.dots.append(dot)
-
-        def update(frame_number):
-            for _ in range(steps_per_frame):
-                self.step()
-
-            for i, body in enumerate(self.bodies):
-                # Omezení délky stopy na 500 bodů, ať se to neseká
-                limit_trail = 500 
-                
-                self.history[i]['x'].append(body.position.x)
-                self.history[i]['y'].append(body.position.y)
-
-                self.trails[i].set_data(
-                    self.history[i]['x'][-limit_trail:], 
-                    self.history[i]['y'][-limit_trail:]
-                )
-                self.dots[i].set_data([body.position.x], [body.position.y])
-            
-            return self.trails + self.dots
-
-        self.ani = FuncAnimation(fig, update, frames=total_frames, 
-                                 interval=20, blit=True, repeat=False)
-        
-        print("Spouštím okno s animací...")
-        plt.show()
-        
+       
