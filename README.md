@@ -50,7 +50,7 @@ Pro změnu rychlosti lze upravit dt, čím vyšší hodnota, tím rychlejší pr
 
 
 
-
+`https://github.com/stehlikpetrps/3-telesa`
 Petr Stehlík
 17.12.2025
 ČVUT FS
