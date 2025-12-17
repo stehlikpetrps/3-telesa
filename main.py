@@ -19,7 +19,7 @@ def run_simulation():
     )
     
     moon1 = Body(
-        mass=7.34e23, 
+        mass=7.34e23, #pro stabilizovaní celé soustavy stačí změnit řád na e22 
         position=Vector(3.84e8, 0, 0), 
         velocity=Vector(0, 1020, 0) 
     )
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     run_simulation()
 """
 def run_figure_8():
-    print("--- START: FIGURE-8  ---")
+    print("--- START: OSMIČKY  ---")
     
     src.engine.G = 1.0 
     

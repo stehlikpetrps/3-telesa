@@ -17,7 +17,7 @@ class Body:
    
     def update_position(self, dt: float):
         """
-        1. KROK VERLETOVA ALGORITMU: posuneme těleso
+        Posuneme těleso
         na základě jeho aktuální rychlosti a zrychlení
         r(t+dt) = r(t) + v(t)*dt + 0.5*a(t)*dt^2
         """
@@ -30,7 +30,7 @@ class Body:
 
     def update_velocity(self, dt: float, new_acceleration: Vector):
         """
-        2. KROK VERLETA: Vypočítáme novou rychlost, aby to bylo přesné
+        Vypočítáme novou rychlost, aby to bylo přesné
         použijeme průměr starého zrychlení na začáku kroku a nového na konci
         v(t+dt) = v(t) + 0.5 * (a(t) + a(t+dt)) * dt
                                 staré + nové
