@@ -1,5 +1,5 @@
 import matplotlib
-matplotlib.use('TkAgg')
+matplotlib.use('TkAgg') #stabilnější grafické okno - na macu by němelo padat
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from .vector import Vector
@@ -10,7 +10,7 @@ G = 6.6743e-11
 class SimulationEngine:
     def __init__(self, bodies: list[Body], dt: float = 0.01):
         self.bodies = bodies
-        self.dt = dt
+        self.dt = dt #časový krok
 
     def calculate_acceleration(self, target_body: Body) -> Vector:
         """
@@ -21,13 +21,13 @@ class SimulationEngine:
         
         for other_body in self.bodies:
             if other_body is target_body:
-                continue # Nepočítat sílu sám na sebe
+                continue # Tělesa nebudou přitahovat sama sebe
             
             # Vektor k druhému tělesu
             r_vector = other_body.position - target_body.position
-            r_magnitude = r_vector.get_magnitude()
+            r_magnitude = r_vector.get_magnitude() #Vzdálenost
             
-            if r_magnitude == 0:
+            if r_magnitude == 0: #Aby se tělesa nestrazila
                 continue 
 
             # Síla F = G * m1 * m2 / r^2
@@ -46,12 +46,12 @@ class SimulationEngine:
         Tento postup zachovává energii a je stabilní pro orbity.
         """
         
-        # 1. Posunout polohu všech těles (pomocí starého zrychlení)
+        # 1. Posunout polohu všech těles - pomocí starého zrychlení
         for body in self.bodies:
             body.update_position(self.dt)
             
-        # 2. Vypočítat NOVÉ zrychlení pro všechna tělesa (na nové pozici)
-        # Musíme si je uložit bokem, abychom nepřepsali stará zrychlení předčasně
+        # 2. Vypočítat NOVÉ zrychlení pro všechna tělesa na nové pozici
+        # Uložíme to bokem, abychom nepřepsali stará zrychlení 
         new_accelerations = []
         for body in self.bodies:
             acc = self.calculate_acceleration(body)
@@ -64,13 +64,22 @@ class SimulationEngine:
             
             body.update_velocity(self.dt, new_acc)
     
-    def animate(self, total_frames=500, steps_per_frame=20):
+    def animate(self, total_frames=500, steps_per_frame=20, plot_limit=None):
+        
+        """
+        VIZUALIZACE
+        """
+
         print("Připravuji animaci s dráhami...")
         
-        fig, ax = plt.subplots(figsize=(10, 10))
+        fig, ax = plt.subplots(figsize=(10, 10)) #vytvoříme okno grafu
         
-        # Limit grafu (nastavíme podle nejvzdálenějšího tělesa)
-        limit = 4.5e8 
+        # Limit grafu
+        if plot_limit is not None:
+            limit = plot_limit
+        else:
+            limit = 4.5e8
+
         ax.set_xlim(-limit, limit)
         ax.set_ylim(-limit, limit)
         ax.set_aspect('equal')
@@ -79,25 +88,21 @@ class SimulationEngine:
 
         colors = ['blue', 'green', 'red', 'purple', 'orange']
         sizes = [12, 8, 6, 5, 5] 
-
-        self.dots = []
-        self.trails = [] # ### NOVÉ ###
-        
-        # ### NOVÉ ###: Připravíme si paměť na historii poloh pro všechna tělesa
-        # history = [ {'x': [seznam x souřadnic], 'y': [seznam y souřadnic]}, ... ]
+        #seznam teček a čar - chceme ukládat jejich historii, abychom je mohli vykreslit
+        self.dots = [] 
+        self.trails = []
         self.history = [ {'x': [], 'y': []} for _ in self.bodies ]
 
-        # Inicializace grafických objektů (tečky a čáry)
+        # Inicializace grafických objektů
         for i in range(len(self.bodies)):
             color = colors[i % len(colors)]
             
-            # 1. Vytvoříme objekt pro ČÁRU (trail) ### NOVÉ ###
-            # '-' znamená plná čára, linewidth=1 je tenká, alpha=0.6 je trochu průhledná
+            # Vytvoříme objekt pro čáru
             trail, = ax.plot([], [], '-', color=color, linewidth=1, alpha=0.6)
             self.trails.append(trail)
 
-            # 2. Vytvoříme objekt pro TEČKU (dot)
-            # zorder=5 zajistí, že tečka bude vykreslena "nad" čárou
+            # 2. Vytvoříme objekt pro tečku 
+            # zorder=5 zajistí, že tečka bude vykreslena nad čarou
             dot, = ax.plot([], [], 'o', color=color, markersize=sizes[i % len(sizes)], zorder=5)
             self.dots.append(dot)
 
@@ -108,23 +113,23 @@ class SimulationEngine:
 
             # Aktualizujeme grafiku
             for i, body in enumerate(self.bodies):
-                # A) Přidáme aktuální polohu do historie ### NOVÉ ###
+                # Přidáme aktuální polohu do historie 
                 self.history[i]['x'].append(body.position.x)
                 self.history[i]['y'].append(body.position.y)
 
-                # B) Aktualizujeme ČÁRU (pošleme jí celou historii) ### NOVÉ ###
+                # Aktualizujeme čáru 
                 self.trails[i].set_data(self.history[i]['x'], self.history[i]['y'])
                 
-                # C) Aktualizujeme TEČKU (pošleme jí jen aktuální bod [x], [y])
+                # Aktualizujeme tečku 
                 self.dots[i].set_data([body.position.x], [body.position.y])
             
-            # Matplotlib musí vědět, co všechno se změnilo.
-            # Vracíme spojený seznam čar a teček. ### NOVÉ ###
+            
+            # Vracíme spojený seznam čar a teček
             return self.trails + self.dots
 
-        # Spuštění animace (blit=False pro jistotu na Macu)
+        # Spuštění animace 
         self.ani = FuncAnimation(fig, update, frames=total_frames, 
-                                 interval=20, blit=False, repeat=False)
+                                 interval=20, blit=True, repeat=False)
         
         print("Spouštím okno s animací...")
         plt.show()
