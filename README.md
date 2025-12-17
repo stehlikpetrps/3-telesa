@@ -30,7 +30,7 @@ Pro spuštění programu potřebujete nainstalovaný **Python 3.x**
 Projekt závisí na knihovně `matplotlib` pro vizualizaci grafů
 
 ## Spuštění
-python main.py
+`python main.py`
 
 ## Možnost konfigurace
 V případě potřeby přidání dalšího tělesa stačí přidat následující kód (hodnoty si můžete upravit)
