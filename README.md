@@ -22,7 +22,8 @@ n_body_simulation/
     ├── vector.py           # Implementace 3D vektorové matematiky a operátorů
     ├── body.py             # Reprezentuje fyzikální těleso
     ├── engine.py           # Počítá interakce mezi všemi tělesy a obsluhuje grafiku.
-``` 
+```
+
 
 ## Požadavky
 Pro spuštění programu potřebujete nainstalovaný **Python 3.x**
@@ -33,13 +34,13 @@ python main.py
 
 ## Možnost konfigurace
 V případě potřeby přidání dalšího tělesa stačí přidat následující kód (hodnoty si můžete upravit)
-
+```text
 dalsi_teleso = Body(
     mass=5.97e24,                   # Hmotnost v kg
     position=Vector(0, 0, 0),       # Počáteční pozice [x, y, z] v metrech
     velocity=Vector(0, -15, 0)      # Počáteční rychlost [vx, vy, vz] v m/s
 )
-
+```
 Pro změnu rychlosti lze upravit dt, čím vyšší hodnota, tím rychlejší program + upravit steps_per_frame pro upravení množství fyzikálních výpočtů jednoho kroku.
 
 ## Připravené scénáře
